@@ -1,2 +1,14 @@
+# IntelliJ
 .idea/
 *.iml
+
+
+# Compiled files
+*.tfstate
+*.tfstate.backup
+.terraform.tfstate.lock.info
+# Module directory
+.terraform/
+
+# python venv
+env1/
