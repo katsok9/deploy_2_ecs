@@ -5,6 +5,19 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
+variable "deployment" {
+  description = "The id of the current deployment"
+}
+
+variable "organization" {
+  description = "The id of the organization which the deployment will deploy to (VPC)"
+}
+
+variable "template_file" {
+  description = "The file for default container configuration"
+  default = "../terraform/templates/ecs/default-org-container.json.tpl"
+}
+
 variable "az_count" {
   description = "Number of AZs to cover in a given region"
   default     = "2"
@@ -12,7 +25,6 @@ variable "az_count" {
 
 variable "app_image" {
   description = "Docker image to run in the ECS cluster"
-  default     = "bradfordhamilton/crystal_blockchain:latest"
 }
 
 variable "app_port" {

@@ -1,13 +1,15 @@
 # ecs.tf
 
 resource "aws_ecs_cluster" "main" {
-  name = "cb-cluster"
+  name = "${var.organization}-${var.deployment}-cluster"
 }
 
-data "template_file" "cb_app" {
-  template = "${file("terraform/templates/ecs/cb_app.json.tpl")}"
+data "template_file" "deploy_app" {
+  template = "${file(var.template_file)}"
 
   vars {
+    organization   = "${var.organization}"
+    deployment     = "${var.deployment}"
     app_image      = "${var.app_image}"
     fargate_cpu    = "${var.fargate_cpu}"
     fargate_memory = "${var.fargate_memory}"
@@ -17,17 +19,18 @@ data "template_file" "cb_app" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = "cb-app-task"
+  family                   = "deploy_app-task"
   execution_role_arn       = "${var.ecs_task_execution_role}"
+  task_role_arn            = "${var.ecs_task_execution_role}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "${var.fargate_cpu}"
   memory                   = "${var.fargate_memory}"
-  container_definitions    = "${data.template_file.cb_app.rendered}"
+  container_definitions    = "${data.template_file.deploy_app.rendered}"
 }
 
 resource "aws_ecs_service" "main" {
-  name            = "cb-service"
+  name            = "${var.organization}-${var.deployment}-service"
   cluster         = "${aws_ecs_cluster.main.id}"
   task_definition = "${aws_ecs_task_definition.app.arn}"
   desired_count   = "${var.app_count}"
@@ -41,7 +44,7 @@ resource "aws_ecs_service" "main" {
 
   load_balancer {
     target_group_arn = "${aws_alb_target_group.app.id}"
-    container_name   = "cb-app"
+    container_name   = "${var.organization}-${var.deployment}-app"
     container_port   = "${var.app_port}"
   }
 
