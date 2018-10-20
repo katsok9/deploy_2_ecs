@@ -2,13 +2,15 @@
 .idea/
 *.iml
 
-
+# plan files
+*.plan
 # Compiled files
 *.tfstate
 *.tfstate.backup
 .terraform.tfstate.lock.info
 # Module directory
 .terraform/
+
 
 # python venv
 env1/
