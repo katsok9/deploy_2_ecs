@@ -7,22 +7,24 @@ from flask_restful import Resource
 def deploy(image):
     print(f'This is Dry Run! Deploying image: {image}...')
 
-    org = "default-org"
+    # TODO move to fields
+    org = "default-org" # TODO generify
     deployment = image[image.rfind('/') + 1:]
     vars_file_path = "../terraform/generated/vars.tfvars"
     template_file_path = f"../terraform/templates/ecs/{org}-{deployment}.json.tpl"
     def_template_file_path = "../terraform/templates/ecs/default-org-container.json.tpl"
-
+    # TODO extract to class method
     params = set_params(image, org, deployment, template_file_path)
-
+    # TODO extract to class method
     write_variables(params, vars_file_path)
 
     write_template_file(template_file_path, def_template_file_path)
+    # TODO add error handle
     print(f'Starting to run init')
     init_out = run_terraform_init(vars_file_path)
     print(f'Starting to run plan')
     plan_out = run_terraform_plan(vars_file_path, image)
-
+    # TODO simplify output
     return {'task': f'plan executed for{image}',
             'init_output': f'{init_out}',
             'plan_output': f'{plan_out}',
@@ -86,10 +88,12 @@ def run_terraform_init(vars_file_path):
 
 
 def get_deployment(image):
+    # TODO get current state
     return {'Deployment': f'{image}'}
 
 
 def delete_deployment(image):
+    # TODO remove org deployment files
     vars_file_path = "../terraform/generated/vars.tfvars"
     print("starting to destroy deployment {image}")
     cmd = f"terraform destroy -var-file={vars_file_path} -auto-approve ../terraform/"
@@ -104,7 +108,7 @@ def apply(image):
 
 class Deployment(Resource):
 
-
+    # TODO add fields instead of local variables
 
     def get(self, image):
         return get_deployment(image)
@@ -113,7 +117,9 @@ class Deployment(Resource):
         return deploy(image)
 
     def post(self, image):
+        # TODO check form for validation
         return apply(image)
 
     def delete(self, image):
+        # TODO check form for validation
         return delete_deployment(image)
